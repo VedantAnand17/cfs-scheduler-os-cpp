@@ -1,6 +1,5 @@
-#include <iostream>
 #include <vector>
-#include <chrono> // Include the chrono library
+#include <chrono>
 #include "processService.hpp"
 #include "processLog.hpp"
 #include "queueService.hpp"
