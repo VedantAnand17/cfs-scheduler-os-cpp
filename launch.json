@@ -1,0 +1,34 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug C++ Program",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/cfs-scheduler", // Path to the executable
+            "args": [],
+            "stopAtEntry": false, // Set to true if you want to stop at the entry point
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false, // Set to true if you want to use an external console
+            "MIMode": "gdb", // Use GDB for Linux or LLDB for macOS
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb", // Path to GDB on your system
+            "preLaunchTask": "build", // Automatically run the build task before launching the debugger
+            "miDebuggerArgs": "",
+            "logging": {
+                "trace": true, // Enable trace logging for more detailed output
+                "traceResponse": true
+            },
+            "sourceFileMap": {
+                "/build/glibc-x86_64/": "/usr/include/"
+            }
+        }
+    ]
+}
