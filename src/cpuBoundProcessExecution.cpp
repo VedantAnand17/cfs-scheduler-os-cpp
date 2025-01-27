@@ -4,20 +4,21 @@
 #include <iostream>
 #include "cpuBoundProcessExecution.hpp"
 
+constexpr int NICE_0_LOAD = 1024;  // Standard Linux value
+
 double weightFunction(int priority) {
-    return (priority + 1);
+    return NICE_0_LOAD / (priority + 1);  // +1 to avoid division by zero
 }
 
-void executeCpuBoundProcess(Process* process, int timeSlice, QueueService q) {
-    int executedInstructions = 0;
-    const int maxInstructions = timeSlice * CPU_INSTRUCTIONS_IN_MS;
-
-    while (executedInstructions < maxInstructions && process -> cpu_burst_time > 0) {
-        executedInstructions++;
-        process -> cpu_burst_time--; // Decrease burst time
-    }
-    process -> vruntime += executedInstructions * weightFunction(process -> priority);
-    if (process -> cpu_burst_time > 0) {
+void executeCpuBoundProcess(Process* process, int timeSlice, QueueService &q) {
+    const int executedTime = std::min(timeSlice, process->cpu_burst_time);
+    
+    process->cpu_burst_time -= executedTime;
+    
+    const double weight = weightFunction(process->priority);
+    process->vruntime += (executedTime * NICE_0_LOAD) / weight;
+    
+    if (process->cpu_burst_time > 0) {
         q.push_element(process);
     }
 }

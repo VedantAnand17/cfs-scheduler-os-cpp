@@ -1,38 +1,34 @@
+import pandas as pd
 import matplotlib.pyplot as plt
 
-# Data
-data = [
-    (3, 1668631324671, 1668631325587),
-    (7, 1668631326796, 1668631327587),
-    (5, 1668631328254, 1668631328921),
-    (1, 1668631329629, 1668631330254),
-    (2, 1668631330629, 1669631653073),
-    (8, 1669631655031, 1670632338142),
-    (6, 1670632338933, 1671632489252),
-    (4, 1671632490544, 1672632974696)
-]
+# Read the CSV file
+df = pd.read_csv('process_schedule.csv')
 
-# Extract data
-pids = [item[0] for item in data]
-start_times = [item[1] for item in data]
-end_times = [item[2] for item in data]
+# Create a figure
+plt.figure(figsize=(12, 6))
 
-# Calculate durations
-durations = [end - start for start, end in zip(start_times, end_times)]
+# Plot each process as a horizontal bar
+for _, row in df.iterrows():
+    plt.hlines(y=row['pid'], 
+              xmin=row['start_time'], 
+              xmax=row['end_time'], 
+              linewidth=10, 
+              color=plt.cm.Set3(row['pid'] % 8))  # Cycle through colors
 
-# Plot
-fig, ax = plt.subplots(figsize=(10, 6))
+# Customize the plot
+plt.title('Process Schedule Timeline')
+plt.xlabel('Time')
+plt.ylabel('Process ID')
+plt.grid(True, axis='x', linestyle='--', alpha=0.7)
 
-for i, (pid, start, duration) in enumerate(zip(pids, start_times, durations)):
-    ax.broken_barh([(start, duration)], (i - 0.4, 0.8), facecolors=f"C{i % 10}")
+# Adjust y-axis to show all process IDs
+unique_pids = df['pid'].unique()
+plt.yticks(unique_pids)
 
-# Set labels and formatting
-ax.set_yticks(range(len(pids)))
-ax.set_yticklabels([f"PID {pid}" for pid in pids])
-ax.set_xlabel("Time (ms since epoch)")
-ax.set_ylabel("Processes")
-ax.set_title("Process Execution Timeline")
-ax.grid(True, which="both", linestyle="--", linewidth=0.5)
+# Add legend
+processes = [f'Process {pid}' for pid in unique_pids]
+plt.legend(processes, bbox_to_anchor=(1.05, 1), loc='upper left')
 
 plt.tight_layout()
+plt.savefig('process_schedule.png')
 plt.show()

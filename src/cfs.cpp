@@ -31,7 +31,6 @@ std::vector<ProcessLog *> cfs::schedule(std::vector<Process *> processList)
         Process *process = queue.top_element();
         queue.pop_element();
 
-        // Record start time in milliseconds
         auto startTime = std::chrono::steady_clock::now();
 
         if (process->processNature == PROCESS_NATURE::CPU_BOUND)
@@ -40,7 +39,7 @@ std::vector<ProcessLog *> cfs::schedule(std::vector<Process *> processList)
         }
         else
         {
-            handleIoBoundProcess(process, 1000, queue);
+            handleIoBoundProcess(process, 10, queue);
         }
 
         // Record end time in milliseconds

@@ -9,8 +9,7 @@
                 "/usr/include",                   
                 "/usr/local/include",             
                 "/usr/include/aarch64-linux-gnu", 
-                "/usr/lib/gcc/aarch64-linux-gnu/11/include",
-                "/usr/bin/aarch64-linux-gnu-gcc" 
+                "/usr/lib/gcc/aarch64-linux-gnu/13/include" 
             ],
             "defines": [
                 "DEBUG",                           

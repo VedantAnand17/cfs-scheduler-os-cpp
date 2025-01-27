@@ -8,6 +8,6 @@
 #include <time.h>
 #include "cpuBoundProcessExecution.hpp"
 
-void handleIoBoundProcess(Process* process, int ioWaitTime, QueueService q);
+void handleIoBoundProcess(Process* process, int ioWaitTime, QueueService& q);
 
 #endif

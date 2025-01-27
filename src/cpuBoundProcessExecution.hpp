@@ -8,6 +8,6 @@
 
 double weightFunction(int priority);
 
-void executeCpuBoundProcess(Process* process, int timeSlice, QueueService q);
+void executeCpuBoundProcess(Process* process, int timeSlice, QueueService& q);
 
 #endif // CPU_BOUND_PROCESS_EXECUTION_HPP
