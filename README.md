@@ -15,6 +15,7 @@ This project is a simulation of the **Completely Fair Scheduler (CFS)**, a proce
 4. [How It Works](#how-it-works)
 5. [Getting Started](#getting-started)
 6. [References](#references)
+7. [Simulation] (#simulation)
 
 ---
 
@@ -118,6 +119,16 @@ The **Completely Fair Scheduler (CFS)** is designed to provide fair CPU time to 
    cd ..
    python3 plot.py
    ```
+
+## Simulation
+
+First simulation is of processes with different vruntime, priority etc but all processes are of IO_BOUND nature whereas second one contains all CPU_BOUND processes.
+
+We can clearly see that IO tasks are waiting for their iowait time and getting penalised. More priority IO task is getting more penalised and scheduling will get delayed whereas in CPU bound tasks, Process 1 got finalised quickly because it has the highest priroirty and got penalised the least because it started with least vruntime and highest priority. So, resulted in more frequent scheduling.
+
+![image](https://github.com/user-attachments/assets/193d8a9d-fd70-4a32-8a82-d55c0cc1a287)
+![image](https://github.com/user-attachments/assets/d5f5367a-0a17-4ac6-9663-1b06e96e9677)
+
 
    _dissecting linux schedulers & implementing our toy cfs_scheduler simulation:- [Link](https://singhdevhub.bearblog.dev/dissecting-linux-schedulers-implementing-our-toy-cfs_scheduler-simulation/)_
 
