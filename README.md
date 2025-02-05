@@ -1,6 +1,6 @@
 # CFS Scheduler Simulation
 
-This project is a simulation of the **Completely Fair Scheduler (CFS)**, a process scheduling algorithm used in the Linux kernel. The simulation demonstrates how CFS manages CPU-bound and I/O-bound tasks by maintaining fairness and prioritizing tasks based on their `vruntime` and weight.
+This project is a simulation of the **Completely Fair Scheduler (CFS)**, a process scheduling algorithm used in the Linux kernel. The simulation demonstrates how CFS manages CPU-bound and I/O-bound tasks by maintaining fairness and prioritizing tasks based on their `vruntime` and `weight`.
 
 ---
 
@@ -14,8 +14,7 @@ This project is a simulation of the **Completely Fair Scheduler (CFS)**, a proce
    - [I/O-Bound Tasks](#io-bound-tasks)
 4. [How It Works](#how-it-works)
 5. [Getting Started](#getting-started)
-6. [References](#references)
-7. [Simulation] (#simulation)
+6. [Simulation](#simulation)
 
 ---
 
