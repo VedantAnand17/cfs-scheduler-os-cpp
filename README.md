@@ -7,130 +7,148 @@ This project is a simulation of the **Completely Fair Scheduler (CFS)**, a proce
 ## Table of Contents
 1. [Overview](#overview)
 2. [Key Concepts](#key-concepts)
-   - [CFS Parameters](#cfs-parameters)
-   - [Scheduling Logic](#scheduling-logic)
-3. [Simulation Details](#simulation-details)
-   - [CPU-Bound Tasks](#cpu-bound-tasks)
-   - [I/O-Bound Tasks](#io-bound-tasks)
-4. [How It Works](#how-it-works)
+3. [Architecture](#architecture)
+4. [Implementation Details](#implementation-details)
 5. [Getting Started](#getting-started)
-6. [Simulation](#simulation)
-
----
+6. [Results](#results)
+7. [References](#references)
 
 ## Overview
 
-The **Completely Fair Scheduler (CFS)** is designed to provide fair CPU time to all tasks by using a virtual runtime (`vruntime`) metric. Tasks with lower `vruntime` are prioritized, ensuring that higher-priority tasks (those with higher weight) get more CPU time. This simulation implements a simplified version of CFS, focusing on:
+```mermaid
+graph LR
+    A[Task Input] --> B[CFS Scheduler]
+    B --> C[CPU-bound Tasks]
+    B --> D[I/O-bound Tasks]
+    C --> E[Update vruntime]
+    D --> F[I/O Wait + Penalty]
+    E --> B
+    F --> B
+```
 
-- **CPU-bound tasks**: Tasks that primarily use the CPU.
-- **I/O-bound tasks**: Tasks that frequently wait for I/O operations.
-
----
+The **Completely Fair Scheduler (CFS)** provides fair CPU time distribution using virtual runtime (`vruntime`) metrics. Tasks with lower `vruntime` get priority, ensuring fair resource allocation.
 
 ## Key Concepts
 
 ### CFS Parameters
-- **Weight**: A priority value assigned to each task. Higher weight means higher priority.
-  - Formula: `weight = NICE_0_LOAD / (priority + 1)`
-  - `NICE_0_LOAD` is a constant (1024 in this simulation).
-- **vruntime**: Virtual runtime of a task, calculated as:
-  - `vruntime += (executed_time * NICE_0_LOAD) / weight`
-  - Higher-priority tasks have slower `vruntime` growth.
-- **Runqueue**: A priority queue (min-heap) sorted by `vruntime`. The task with the smallest `vruntime` is scheduled next.
+```mermaid
+graph TD
+    A[CFS Parameters] --> B[Weight]
+    A --> C[vruntime]
+    A --> D[Runqueue]
+    B --> E["weight = NICE_0_LOAD / (priority + 1)"]
+    C --> F["vruntime += (executed_time * NICE_0_LOAD) / weight"]
+    D --> G[Priority Queue sorted by vruntime]
+```
 
-### Scheduling Logic
-- **CPU-bound tasks**:
-  - Execute for a fixed time slice (1ms in this simulation).
-  - Update `vruntime` based on executed time and weight.
-- **I/O-bound tasks**:
-  - Simulate I/O wait by sleeping for a fixed duration (10ms in this simulation).
-  - Penalize `vruntime` for the I/O wait time.
-  - Execute for a short time slice (1ms) after I/O completion.
+- **Weight**: Higher weight = Higher priority
+  - `NICE_0_LOAD = 1024` (constant)
+- **vruntime**: Virtual runtime metric
+- **Runqueue**: Min-heap priority queue
 
----
+## Architecture
 
-## Simulation Details
+```mermaid
+flowchart TD
+    A[Process Input] --> B[Scheduler]
+    B --> C{Process Type}
+    C -->|CPU-bound| D[Execute 1ms]
+    C -->|I/O-bound| E[I/O Wait 10ms]
+    D --> F[Update vruntime]
+    E --> G[Apply Penalty]
+    F --> H{cpu_burst_time > 0}
+    G --> H
+    H -->|Yes| B
+    H -->|No| I[Terminate]
+```
 
-### CPU-Bound Tasks
-- Tasks that primarily use the CPU.
-- Each task has:
-  - `cpu_burst_time`: Total CPU time required.
-  - `priority`: Determines the task's weight.
-- Execution:
-  - Run for a fixed time slice (1ms).
-  - Update `vruntime` and reduce `cpu_burst_time`.
-  - Requeue if `cpu_burst_time > 0`.
+## Implementation Details
 
-### I/O-Bound Tasks
-- Tasks that frequently wait for I/O.
-- Each task has:
-  - `cpu_burst_time`: Total CPU time required.
-  - `priority`: Determines the task's weight.
-  - `iowait`: Simulated I/O wait time (10ms).
-- Execution:
-  - Sleep for `iowait` to simulate I/O wait.
-  - Penalize `vruntime` for the I/O wait time.
-  - Run for a short time slice (1ms) after I/O completion.
-  - Requeue if `cpu_burst_time > 0`.
+### CPU-Bound Task Flow
+```mermaid
+sequenceDiagram
+    participant P as Process
+    participant S as Scheduler
+    participant Q as Runqueue
+    
+    P->>S: Request CPU time
+    S->>P: Execute for 1ms
+    P->>S: Update vruntime
+    S->>Q: Requeue if not complete
+```
 
----
-
-## How It Works
-
-1. **Initialization**:
-   - All tasks are added to the runqueue with initial `vruntime` values.
-   - Tasks are categorized as CPU-bound or I/O-bound.
-
-2. **Scheduling Loop**:
-   - The scheduler picks the task with the smallest `vruntime` from the runqueue.
-   - If the task is CPU-bound:
-     - Execute for 1ms.
-     - Update `vruntime` and reduce `cpu_burst_time`.
-     - Requeue if `cpu_burst_time > 0`.
-   - If the task is I/O-bound:
-     - Simulate I/O wait by sleeping for 10ms.
-     - Penalize `vruntime` for the I/O wait time.
-     - Execute for 1ms after I/O completion.
-     - Requeue if `cpu_burst_time > 0`.
-
-3. **Termination**:
-   - The simulation ends when all tasks have completed their `cpu_burst_time`.
-
----
+### I/O-Bound Task Flow
+```mermaid
+sequenceDiagram
+    participant P as Process
+    participant S as Scheduler
+    participant I as I/O Device
+    participant Q as Runqueue
+    
+    P->>S: Request I/O
+    S->>I: I/O Wait (10ms)
+    I->>S: I/O Complete
+    S->>P: Execute for 1ms
+    P->>S: Update vruntime + penalty
+    S->>Q: Requeue if not complete
+```
 
 ## Getting Started
 
 ### Prerequisites
-- C++ compiler (e.g., `g++`).
-- Basic understanding of process scheduling.
+- C++ compiler (g++)
+- Python 3.x with venv
+- CMake
+- Basic understanding of process scheduling
 
-### Steps to Run the Simulation
-1. Clone the repository:
-   ```bash
-   git clone <repo-url>
-   cd cfs-scheduler-cpp
-   python -m venv /myvenv # create virtual env if not created, use python3 if python not working
-   source myvenv/bin/activate
-   cd build # make build dir in root folder if it is not there
-   cmake ..
-   make
-   ./cfs-schedular
-   cd ..
-   python3 plot.py
-   ```
+### Installation & Running
+```bash
+# Clone repository
+git clone <repo-url>
+cd cfs-scheduler-cpp
 
-## Simulation
+# Setup Python environment
+python -m venv myvenv
+source myvenv/bin/activate
 
-First simulation is of processes with different vruntime, priority etc but all processes are of IO_BOUND nature whereas second one contains all CPU_BOUND processes.
+# Build project
+mkdir build && cd build
+cmake ..
+make
 
-We can clearly see that IO tasks are waiting for their iowait time and getting penalised. More priority IO task is getting more penalised and scheduling will get delayed whereas in CPU bound tasks, Process 1 got finalised quickly because it has the highest priroirty and got penalised the least because it started with least vruntime and highest priority. So, resulted in more frequent scheduling.
+# Run simulation
+./cfs-schedular
+cd ..
+python3 plot.py
+```
 
-![image](https://github.com/user-attachments/assets/193d8a9d-fd70-4a32-8a82-d55c0cc1a287)
-![image](https://github.com/user-attachments/assets/d5f5367a-0a17-4ac6-9663-1b06e96e9677)
+## Results
+
+### Process Scheduling Comparison
+
+#### I/O-Bound Processes
+- All processes have different vruntime and priorities
+- I/O wait penalties affect scheduling frequency
+- Higher priority tasks face larger penalties
+
+![IO-Bound Process Schedule](https://github.com/user-attachments/assets/193d8a9d-fd70-4a32-8a82-d55c0cc1a287)
+
+#### CPU-Bound Processes
+- Process 1 (highest priority) completes fastest
+- Lower vruntime + higher priority = more frequent scheduling
+- No I/O wait penalties
+
+![CPU-Bound Process Schedule](https://github.com/user-attachments/assets/d5f5367a-0a17-4ac6-9663-1b06e96e9677)
+
+## References
+
+1. [Linux CFS Documentation](https://www.kernel.org/doc/html/latest/scheduler/sched-design-CFS.html)
+2. [Detailed Implementation Blog](https://singhdevhub.bearblog.dev/dissecting-linux-schedulers-implementing-our-toy-cfs_scheduler-simulation/)
+
+---
+
+For more details about the implementation, check out the source code in the repository.
 
 
-   _dissecting linux schedulers & implementing our toy cfs_scheduler simulation:- [Link](https://singhdevhub.bearblog.dev/dissecting-linux-schedulers-implementing-our-toy-cfs_scheduler-simulation/)_
 
 
-
-   
