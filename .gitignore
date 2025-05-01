@@ -1,4 +1,6 @@
 build/
 .vscode/
 process_schedule.csv
-/myenv
+/myvenv
+process_schedule_dark.png
+process_schedule.csv
